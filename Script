@@ -1,0 +1,241 @@
+--Acesta este script-ul realizat in SQL pentru crearea tabelelor si inserarea acestora + alte modificari
+
+--Creare tabelelor:
+-- Definirea Tabelului Ceasuri
+CREATE TABLE Ceasuri (
+    ID_Ceas INT PRIMARY KEY,
+    Brand VARCHAR(50),
+    Model VARCHAR(50),
+    Pret DECIMAL(10, 2),
+    Stoc INT,
+    AnFabricatie INT,
+    Material VARCHAR(50),
+    ID_Colectie INT,
+    CodCeas VARCHAR(10)
+);
+-- Definirea Tabelului Clienti
+CREATE TABLE Clienti (
+    ID_Client INT PRIMARY KEY,
+    Nume VARCHAR(50),
+    Prenume VARCHAR(50),
+    Email VARCHAR(100),
+    Adresa VARCHAR(200),
+    DataNasterii DATE,
+    Telefon VARCHAR(15)
+);
+-- Definirea Tabelului Vanzari
+CREATE TABLE Vanzari (
+    ID_Vanzare INT PRIMARY KEY,
+    ID_Ceas INT,
+    ID_Client INT,
+    Data DATE,
+    Cantitate INT,
+    TotalPlata DECIMAL(10, 2),
+    ID_Furnizor INT
+);
+
+-- Definirea Tabelului Furnizori
+CREATE TABLE Furnizori (
+    ID_Furnizor INT PRIMARY KEY,
+    Nume VARCHAR(100),
+    Tara VARCHAR(50)
+);
+-- Definirea Tabelului Colectii
+CREATE TABLE Colectii (
+    ID_Colectie INT PRIMARY KEY,
+    Nume VARCHAR2(100),
+    Descriere CLOB
+);
+-- Definirea Tabelului Reparatii
+CREATE TABLE Reparatii (
+    ID_Reparatie INT PRIMARY KEY,
+    ID_Ceas INT,
+    DataInceput DATE,
+    DataSfarsit DATE,
+    Descriere VARCHAR(255),
+    Cost DECIMAL(10, 2)
+);
+-- Definirea Tabelului Recenzii
+CREATE TABLE Recenzii (
+    ID_Recenzie INT PRIMARY KEY,
+    ID_Client INT,
+    ID_Ceas INT,
+    Scor INT CHECK (Scor BETWEEN 1 AND 5),
+    Comentariu CLOB,
+    Data DATE
+);
+--Definirea Tabelului Angajati
+CREATE TABLE Angajati (
+    ID_Angajat INT PRIMARY KEY,
+    Nume VARCHAR(50) NOT NULL,
+    Prenume VARCHAR(50) NOT NULL,
+    Adresa VARCHAR(100),
+    Email VARCHAR(100) UNIQUE,
+    Data_Angajare DATE,
+    Salariu NUMERIC(10, 2),
+    Functie VARCHAR(50)
+);
+--Adăugarea Constrângerilor de Chei Străine (FK)
+ALTER TABLE Vanzari 
+ADD ID_Angajat INT;
+ALTER TABLE Vanzari ADD CONSTRAINT FK_Vanzari_Angajati FOREIGN KEY (ID_Angajat) REFERENCES Angajati(ID_Angajat);
+ALTER TABLE Vanzari ADD CONSTRAINT FK_Vanzari_Ceasuri FOREIGN KEY (ID_Ceas) REFERENCES Ceasuri(ID_Ceas);
+ALTER TABLE Vanzari ADD CONSTRAINT FK_Vanzari_Furnizori FOREIGN KEY (ID_Furnizor) REFERENCES Furnizori(ID_Furnizor);
+ALTER TABLE Vanzari ADD CONSTRAINT FK_Vanzari_Clienti FOREIGN KEY (ID_Client) REFERENCES Clienti(ID_Client);
+ALTER TABLE Ceasuri ADD CONSTRAINT FK_Ceasuri_Colectii FOREIGN KEY (ID_Colectie) REFERENCES Colectii(ID_Colectie);
+ALTER TABLE Reparatii ADD CONSTRAINT FK_Reparatii_Ceasuri FOREIGN KEY (ID_Ceas) REFERENCES Ceasuri(ID_Ceas);
+ALTER TABLE Recenzii ADD CONSTRAINT FK_Recenzii_Ceasuri FOREIGN KEY (ID_Ceas) REFERENCES Ceasuri(ID_Ceas);
+ALTER TABLE Recenzii ADD CONSTRAINT FK_Recenzii_Clienti FOREIGN KEY (ID_Client) REFERENCES Clienti(ID_Client);
+
+--Inserari:
+
+-- Inserarea de Date în Tabelul Ceasuri folosind SELECT cu UNION ALL
+INSERT INTO Ceasuri (ID_Ceas, Brand, Model, Pret, Stoc, AnFabricatie, Material, ID_Colectie, CodCeas) VALUES 
+(1, 'Rolex', 'Submariner', 12000.00, 5, 2020, 'Otel', 1, 'RLX1001');
+INSERT INTO Ceasuri (ID_Ceas, Brand, Model, Pret, Stoc, AnFabricatie, Material, ID_Colectie, CodCeas) VALUES
+(2, 'Omega', 'Seamaster', 8000.00, 3, 2019, 'Titan', 2, 'OMG1002');
+
+INSERT INTO Ceasuri (ID_Ceas, Brand, Model, Pret, Stoc, AnFabricatie, Material, ID_Colectie, CodCeas) VALUES
+(3, 'Tag Heuer', 'Carrera', 5500.00, 2, 2018, 'Otel', 3, 'TAG1003');
+INSERT INTO Ceasuri (ID_Ceas, Brand, Model, Pret, Stoc, AnFabricatie, Material, ID_Colectie, CodCeas)
+SELECT 4, 'Patek Philippe', 'Nautilus', 25000.00, 1, 2021, 'Aur', 1, 'PTK1004' FROM DUAL
+UNION ALL
+SELECT 5, 'Audemars Piguet', 'Royal Oak', 30000.00, 2, 2022, 'Aur', 3, 'APG1005' FROM DUAL
+UNION ALL
+SELECT 6, 'Breitling', 'Navitimer', 7000.00, 4, 2019, 'Otel', 2, 'BRT1006' FROM DUAL
+UNION ALL
+SELECT 7, 'Cartier', 'Santos', 6500.00, 3, 2020, 'Aur', 2, 'CRT1007' FROM DUAL
+UNION ALL
+SELECT 8, 'IWC', 'Portofino', 9800.00, 2, 2021, 'Otel', 3, 'IWC1008' FROM DUAL
+UNION ALL
+SELECT 9, 'Panerai', 'Luminor', 8500.00, 4, 2018, 'Titan', 1, 'PNR1009' FROM DUAL
+UNION ALL
+SELECT 10, 'Hublot', 'Big Bang', 15000.00, 1, 2022, 'Otel si Ceramica', 1, 'HBL1010' FROM DUAL;
+
+-- Inserarea de Date în Tabelul Clienti folosind SELECT cu UNION ALL
+INSERT INTO Clienti (ID_Client, Nume, Prenume, Email, Adresa, DataNasterii, Telefon)
+SELECT 1, 'Popescu', 'Ion', 'ion_popescu20@yahoo.com', 'Strada Libertății 10', TO_DATE('1985-07-15', 'YYYY-MM-DD'), '0727895312' FROM DUAL
+UNION ALL
+SELECT 2, 'Ionescu', 'Maria', 'maria.ionescu35@gmail.com', 'Bulevardul Unirii 22', TO_DATE('1990-11-30', 'YYYY-MM-DD'), '0733122315' FROM DUAL
+UNION ALL
+SELECT 3, 'Vasilescu', 'Ana', 'ana_vasilescu44@gmail.com', 'Strada Victoriei 35', TO_DATE('1995-04-01', 'YYYY-MM-DD'), '0765593395' FROM DUAL
+UNION ALL
+SELECT 4, 'Enescu', 'George', 'george.andronache1988@yahoo.com', 'Aleea Compozitorilor 5', TO_DATE('1988-09-12', 'YYYY-MM-DD'), '0744815495' FROM DUAL
+UNION ALL
+SELECT 5, 'Mihai', 'Elena', 'elena.mihailescu583@yahoo.com', 'Strada Mărășești 45', TO_DATE('1992-05-20', 'YYYY-MM-DD'), '0723045940' FROM DUAL
+UNION ALL
+SELECT 6, 'Constantin', 'Dan', 'danconstantin58@gmail.com', 'Strada Gen Vasile Milea 17', TO_DATE('1987-04-15', 'YYYY-MM-DD'), '0722786628' FROM DUAL
+UNION ALL
+SELECT 7, 'Manole', 'Mircea', 'mircea.manole55@outlook.com', 'Strada Aviatorilor 78', TO_DATE('1993-08-10', 'YYYY-MM-DD'), '0745029920' FROM DUAL
+UNION ALL
+SELECT 8, 'Stefan', 'Ioana', 'ioana_stefan37@gmail.com', 'Bulevardul Eroilor 33', TO_DATE('1996-03-22', 'YYYY-MM-DD'), '0770190540' FROM DUAL
+UNION ALL
+SELECT 9, 'Dumitrescu', 'Andrei', 'andrei.dumitrescu@gmail.com', 'Strada Independenței 21', TO_DATE('1991-06-30', 'YYYY-MM-DD'), '0729155715' FROM DUAL
+UNION ALL
+SELECT 10, 'Nicolescu', 'Cristina', 'cristina.nicolescu@yahoo.com', 'Strada Valea Cascadelor 48', TO_DATE('1994-10-15', 'YYYY-MM-DD'), '0726145082' FROM DUAL;
+
+-- Inserarea de Date în Tabelul Vanzari
+INSERT INTO Vanzari (ID_Vanzare, ID_Ceas, ID_Client, Data, Cantitate, TotalPlata, ID_Furnizor) VALUES
+(1, 1, 1, TO_DATE('2024-01-10', 'YYYY-MM-DD'), 1, 12000.00, 1); --DELETE apoi;
+INSERT INTO Vanzari (ID_Vanzare, ID_Ceas, ID_Client, Data, Cantitate, TotalPlata, ID_Furnizor) VALUES
+(1, 1, 1, TO_DATE('2023-01-10', 'YYYY-MM-DD'), 1, 12000.00, 1);
+INSERT INTO Vanzari (ID_Vanzare, ID_Ceas, ID_Client, Data, Cantitate, TotalPlata, ID_Furnizor) VALUES
+(2, 2, 2, TO_DATE('2023-02-15', 'YYYY-MM-DD'), 1, 8000.00, 2);
+
+INSERT INTO Vanzari (ID_Vanzare, ID_Ceas, ID_Client, Data, Cantitate, TotalPlata, ID_Furnizor) VALUES
+(3, 3, 3, TO_DATE('2023-03-20', 'YYYY-MM-DD'), 1, 5500.00, 1);
+INSERT INTO Vanzari (ID_Vanzare, ID_Ceas, ID_Client, Data, Cantitate, TotalPlata, ID_Furnizor) VALUES
+(4, 4, 4, TO_DATE('2023-04-05', 'YYYY-MM-DD'), 1, 25000.00, 3);
+INSERT INTO Vanzari (ID_Vanzare, ID_Ceas, ID_Client, Data, Cantitate, TotalPlata, ID_Furnizor) VALUES
+(5, 5, 5, TO_DATE('2023-05-12', 'YYYY-MM-DD'), 1, 30000.00, 2);
+INSERT INTO Vanzari (ID_Vanzare, ID_Ceas, ID_Client, Data, Cantitate, TotalPlata, ID_Furnizor) VALUES
+(6, 6, 6, TO_DATE('2023-06-18', 'YYYY-MM-DD'), 1, 7000.00, 1);
+INSERT INTO Vanzari (ID_Vanzare, ID_Ceas, ID_Client, Data, Cantitate, TotalPlata, ID_Furnizor) VALUES
+(7, 7, 7, TO_DATE('2023-07-25', 'YYYY-MM-DD'), 1, 6500.00, 2);
+INSERT INTO Vanzari (ID_Vanzare, ID_Ceas, ID_Client, Data, Cantitate, TotalPlata, ID_Furnizor) VALUES
+(8, 8, 8, TO_DATE('2023-08-30', 'YYYY-MM-DD'), 1, 9800.00, 3);
+INSERT INTO Vanzari (ID_Vanzare, ID_Ceas, ID_Client, Data, Cantitate, TotalPlata, ID_Furnizor) VALUES
+(9, 9, 9, TO_DATE('2023-09-15', 'YYYY-MM-DD'), 1, 8500.00, 1);
+INSERT INTO Vanzari (ID_Vanzare, ID_Ceas, ID_Client, Data, Cantitate, TotalPlata, ID_Furnizor) VALUES
+(10, 10, 10, TO_DATE('2023-10-22', 'YYYY-MM-DD'), 1, 15000.00, 2);
+
+-- Inserarea de Date în Tabelul Furnizori
+INSERT INTO Furnizori (ID_Furnizor, Nume, Tara)
+SELECT 1, 'LuxTime', 'Elveția' FROM DUAL UNION ALL
+SELECT 2, 'ElegantTime', 'Germania' FROM DUAL UNION ALL
+SELECT 3, 'ClassicWatches', 'Franța' FROM DUAL;
+
+-- Inserarea de Date în Tabelul Colectii
+INSERT INTO Colectii (ID_Colectie, Nume, Descriere)
+SELECT 1, 'Modern Design', 'Colectie cu ceasuri de design modern' FROM DUAL UNION ALL
+SELECT 2, 'Elegant Timepieces', 'Ceasuri elegante pentru ocazii speciale' FROM DUAL UNION ALL
+SELECT 3, 'Sporty Collection', 'Colecție cu ceasuri sportive' FROM DUAL UNION ALL
+SELECT 4, 'Vintage Classics', 'Ceasuri clasice vintage' FROM DUAL;
+
+-- Inserarea de Date în Tabelul Reparatii
+INSERT INTO Reparatii (ID_Reparatie, ID_Ceas, DataInceput, DataSfarsit, Descriere, Cost) VALUES 
+(1, 2, TO_DATE('2023-02-15', 'YYYY-MM-DD'), TO_DATE('2023-02-20', 'YYYY-MM-DD'), 'Inlocuire baterie', 50.00);
+INSERT INTO Reparatii (ID_Reparatie, ID_Ceas, DataInceput, DataSfarsit, Descriere, Cost) VALUES 
+(2, 3, TO_DATE('2023-03-10', 'YYYY-MM-DD'), TO_DATE('2023-03-14', 'YYYY-MM-DD'), 'Reparare mecanism', 200.00);
+INSERT INTO Reparatii (ID_Reparatie, ID_Ceas, DataInceput, DataSfarsit, Descriere, Cost) VALUES 
+(3, 4, TO_DATE('2023-05-25', 'YYYY-MM-DD'), TO_DATE('2023-05-28', 'YYYY-MM-DD'), 'Reparare mecanism', 300.00);
+
+-- Inserarea de Date în Tabelul Recenzii
+INSERT INTO Recenzii (ID_Recenzie, ID_Ceas, Scor, Comentariu, Data) VALUES 
+(1, 1, 5, 'Excelent!', TO_DATE('2023-02-20', 'YYYY-MM-DD'));
+INSERT INTO Recenzii (ID_Recenzie, ID_Ceas, Scor, Comentariu, Data) VALUES 
+(2, 2, 4, 'Foarte bun, dar scump.', TO_DATE('2023-03-15', 'YYYY-MM-DD'));
+INSERT INTO Recenzii (ID_Recenzie, ID_Ceas, Scor, Comentariu, Data) VALUES 
+(3, 3, 3, 'Acceptabil pentru pretul sau.', TO_DATE('2023-04-10', 'YYYY-MM-DD'));
+
+-- Inserarea de Date în Tabelul Angajati
+INSERT INTO Angajati (ID_Angajat, Nume, Prenume, Adresa, Email, Data_Angajare, Salariu, Functie)
+
+SELECT 1, 'Radulescu', 'Andrei', 'Strada Muza Adormita 16', 'andrei_radulescu90@yahoo.com', TO_DATE('1990-09-15', 'YYYY-MM-DD'), '5000', 'Manager magazin' FROM DUAL;
+INSERT INTO Angajati (ID_Angajat, Nume, Prenume, Adresa, Email, Data_Angajare, Salariu, Functie)
+SELECT 2, 'Alexe', 'Bogdan', 'Strada Cetatii 7', 'bogdan_alexe@gmail.com', TO_DATE('1999-06-24', 'YYYY-MM-DD'), '4200', 'Tehnician service' FROM DUAL;
+INSERT INTO Angajati (ID_Angajat, Nume, Prenume, Adresa, Email, Data_Angajare, Salariu, Functie)
+SELECT 3, 'Popa', 'Andreea', 'Strada Oltenitei 65', 'andreeapopa487@yahoo.com', TO_DATE('1997-11-12', 'YYYY-MM-DD'), '3000', 'Casier' FROM DUAL;
+INSERT INTO Angajati (ID_Angajat, Nume, Prenume, Adresa, Email, Data_Angajare, Salariu, Functie)
+SELECT 4, 'Stan', 'Anca', 'Strada Berceni 48', 'anca_stan71@outlook.com', TO_DATE('1998-12-8', 'YYYY-MM-DD'), '3000', 'Casier' FROM DUAL;
+INSERT INTO Angajati (ID_Angajat, Nume, Prenume, Adresa, Email, Data_Angajare, Salariu, Functie)
+SELECT 5, 'Mocanu', 'Antonia', 'Strada Elisabeta 19', 'antoniamocanu1997@yahoo.com', TO_DATE('1997-10-19', 'YYYY-MM-DD'), 3000.00, 'Casier' FROM DUAL;
+INSERT INTO Angajati (ID_Angajat, Nume, Prenume, Adresa, Email, Data_Angajare, Salariu, Functie)
+SELECT 6, 'Paraschiv', 'Liliana', 'Strada Apusului 27', 'liliana_paraschiv1970@yahoo.com', TO_DATE('1970-03-28', 'YYYY-MM-DD'), 3000.00, 'Femeie de servici' FROM DUAL;
+INSERT INTO Angajati (ID_Angajat, Nume, Prenume, Adresa, Email, Data_Angajare, Salariu, Functie)
+SELECT 7, 'Tudor', 'Andrei', 'Strada Decebal 39', 'andrei.tudor2002@gmail.com', TO_DATE('2002-04-18', 'YYYY-MM-DD'), 2000.00, 'Tehnician Junior' FROM DUAL;
+Adaugare Inregistrare cu numele meu:
+INSERT INTO CLIENTI (ID_Client, Nume, Prenume, Email, Adresa, DataNasterii, Telefon)
+SELECT 11, 'Tudose', 'Razvan', 'tudosedragos22@stud.ase.ro', 'Bucuresti', TO_DATE('2003-10-28', 'YYYY-MM-DD'), '0729128281' FROM DUAL;
+INSERT INTO Vanzari (ID_Vanzare, ID_Ceas, ID_Client, Data, Cantitate, TotalPlata, ID_Furnizor) VALUES
+(11, 1, 11, TO_DATE('2023-12-21', 'YYYY-MM-DD'), 1, 12000.00, 1);
+
+--Modificari pentru cerintele proiectului
+--Actualizari, stergeri si alte operatii:
+DELETE FROM VANZARI WHERE ID_Vanzare = 1;
+
+-- Actualizam inregistrarile orfane cu un ID_Client valid.
+UPDATE Vanzari
+SET ID_Client = 1
+WHERE ID_Client NOT IN (SELECT ID_Client FROM Clienti);
+
+ALTER TABLE Angajati 
+ADD ID_Manager INT;
+
+UPDATE Angajati
+SET ID_Manager = 1
+WHERE ID_Angajat IN (2,3,4,5,6);
+
+-- Actualizare casiera la postul de casier șef
+UPDATE Angajati
+SET Functie = 'Casier Sef'
+WHERE ID_Angajat = 3;
+
+UPDATE Angajati
+SET ID_Manager = (SELECT ID_Angajat FROM Angajati WHERE Nume = 'Alexe' AND Prenume = 'Bogdan')
+WHERE Nume = 'Tudor' AND Prenume = 'Andrei';
+
+UPDATE Angajati
+SET ID_Manager = (SELECT ID_Angajat FROM Angajati WHERE Nume = 'Popa' AND Prenume = 'Andreea')
+WHERE Nume IN ('Stan', 'Mocanu', 'Paraschiv');
+
