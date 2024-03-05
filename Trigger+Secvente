@@ -1,0 +1,49 @@
+--Creare secventa pentru asigurarea unicitatii cheii primare in tabela Vanzari
+CREATE SEQUENCE Seq_ID_Vanzari
+START WITH 1
+INCREMENT BY 1
+NOCYCLE;
+
+--Verificare
+INSERT INTO Vanzari VALUES (Seq_ID_Vanzari.NEXTVAL, 1, 10, TO_DATE('2024-01-13', 'YYYY-MM-DD'), 1, 12000, 1, 3);
+
+
+--Actualizare stoc ceasuri atunci cand o vanzare este realizata - Suplimentar -->PL/SQL
+--Creare trigger care sa se activeze dupa inserarea unei noi vanzari
+CREATE OR REPLACE TRIGGER ActualizareStocCeasuri
+AFTER INSERT ON Vanzari
+FOR EACH ROW
+BEGIN
+--Actualizez stocul in tabela Ceasuri
+    UPDATE Ceasuri
+    SET Stoc = Stoc - :NEW.Cantitate --Scad cantitatea vanduta din stoc
+    WHERE ID_Ceas = :NEW.ID_Ceas; --ID-ul ceasului vandut
+END;
+/
+
+--Verificare functionalitate
+INSERT INTO Vanzari (ID_Vanzare, ID_Ceas, ID_Client, Data, Cantitate, TotalPlata, ID_Furnizor, ID_Angajat)
+VALUES (Seq_ID_Vanzari.NEXTVAL, 3, 7, TO_DATE('2024-01-13', 'YYYY-MM-DD'), 1, 5500, 1, 3);
+
+--Afisez stocul actual al ceasului cu ID_Ceas 3
+SELECT Stoc
+FROM Ceasuri
+WHERE ID_Ceas = 1;
+
+
+--Creare secventa pentru ID_Client
+CREATE SEQUENCE Seq_ID_Client
+START WITH 1
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+
+--Verificare functionalitate cu secventa pentru ID_Client
+INSERT INTO Vanzari (ID_Vanzare, ID_Ceas, ID_Client, Data, Cantitate, TotalPlata, ID_Furnizor, ID_Angajat)
+VALUES (Seq_ID_Vanzari.NEXTVAL, 3, Seq_ID_Client.NEXTVAL, TO_DATE('2024-01-13', 'YYYY-MM-DD'), 1, 5500, 1, 3);
+
+
+--Afisez stocul actual al ceasului cu ID_Ceas 3
+SELECT Stoc
+FROM Ceasuri
+WHERE ID_Ceas = 3;
