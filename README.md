@@ -1,4 +1,4 @@
-## Descriere a Bazei de Date - Magazin de Ceasuri de Lux
+# Descriere a Bazei de Date - Magazin de Ceasuri de Lux
 
 Tema proiectului se axează pe dezvoltarea unei baze de date detaliate pentru un magazin de ceasuri de lux, implementată în SQL Developer și Oracle APEX.
 
