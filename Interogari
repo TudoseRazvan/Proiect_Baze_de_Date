@@ -1,0 +1,72 @@
+--Cateva Interogari efectuate 
+--Interogarea 1: Care sunt ceasurile vandute clientilor si pretul total platit pentru fiecare client?
+SELECT CLIENTI.Nume AS NumeClient, CEASURI.Brand AS BrandCeas, CEASURI.Model AS ModelCeas, VANZARI.TotalPlata AS PretTotal 
+FROM VANZARI
+INNER JOIN CLIENTI ON VANZARI.ID_CLIENT = CLIENT.ID_CLIENT
+INNER JOIN CEASURI ON VANZARI.ID_CEAS = CEASURI.ID_CEAS;
+
+
+--Interogare 2: Care este cea mai scumpa colectie de ceasuri?
+SELECT COLECTII.Nume AS Colectie, MAX(CEASURI.Pret) AS PretMaxim
+FROM Ceasuri
+INNER JOIN COLECTII ON CEASURI.ID_COLECTIE = COLECTII.ID_COLECTIE
+GROUP BY COLECTII.NUME; 
+ 
+
+--Interogare 3: Care sunt colectiile de ceasuri care au un pret mediu mai mare de 10000 de dolari?
+SELECT C.Nume AS NumeColectie, AVG(E.Pret) AS PretMediu
+FROM COLECTII C
+INNER JOIN Ceasuri E ON C.ID_Colectie = E.ID_Colectie
+GROUP BY C.NUME
+HAVING AVG(E.Pret) > 10000;
+
+--Interogare 4: Care este colectia cu cele mai multe vanzari?
+SELECT 
+    C.Nume AS NumeColectie,
+    COUNT(*) AS NumarVanzari
+FROM
+    CEASURI CE
+JOIN
+    COLECTII C ON CE.ID_Colectie = C.ID_Colectie
+JOIN
+    VANZARI V ON CE.ID_Ceas = V.ID_Ceas
+GROUP BY 
+    C.NUME
+ORDER BY 
+    NumarVanzari DESC;
+
+
+--Interogari (CONNECT BY, PRIOR, LEVEL):
+--Interogare 5: Afiseaza angatii aflati in subordinea managerului de magazin
+SELECT A.ID_Angajat, A.Nume, A.Prenume, A.Functie, A.ID_Manager
+FROM Angajati A
+START WITH A.ID_Angajat = 1
+CONNECT BY PRIOR A.ID_Angajat = A.ID_Manager;
+
+ 
+--Interogare 6: Afisati organigrama angajatilor companiei
+SELECT LPAD(' ', 2 * LEVEL - 1) || A.Nume || ' ' || A.Prenume AS Angajat,
+       A.Functie
+FROM Angajati A
+START WITH A.ID_Angajat = 1
+CONNECT BY PRIOR A.ID_Angajat = A.ID_Manager
+ORDER SIBLINGS BY A.ID_Angajat;
+
+--Gestiunea altor obiecte ale bazei de date (tabele virtuale, indecsi, sinonime, secvente):
+
+--Interogare 7: --Crearea unui view pentru a vedea toate comenzile pe anul 2023
+CREATE VIEW ViewVanzari2023 AS 
+SELECT id_vanzare, data, totalplata
+FROM Vanzari
+WHERE EXTRACT(YEAR FROM data) = 2023;
+--Afisarea comnezilor pe anul 2023
+SELECT * FROM ViewVanzari2023;
+ 
+--Crearea unui index pe coloana "ID_Client"
+CREATE INDEX IDX_ID_Client ON Vanzari(ID_Client);
+
+--Interogare 8: Selecteaza toate vanzarile pentru clientii cu ID-urile intre 1 si 10
+SELECT *
+FROM Vanzari
+WHERE ID_Client BETWEEN 1 AND 10
+ORDER BY ID_Client ASC;
